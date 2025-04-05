@@ -4,16 +4,20 @@ const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser');
 const connectDb = require('./dB/connect.js')
-
+const Logger = require('./middleware/Logger.js')
+const routes = require("./Routes/Routes.js");
+const cors = require('cors')
 
 const app = express();
 
+app.use(cors())
 // middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // routes
-
+app.use('/api', routes);
+app.use(Logger)
 
 // server
 const port = process.env.PORT || 3000;
