@@ -72,7 +72,11 @@ const EmployeeSchema = new mongoose.Schema({
             type: Date,
             default: Date.now,
         },
-    }]
+    }],
+    IsVerified:{
+        type:Boolean,
+        default:false
+    }
 });
 
 module.exports = mongoose.model('Employee', EmployeeSchema);
