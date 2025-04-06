@@ -1,39 +1,43 @@
 require("dotenv").config();
 const express = require('express');
 const bodyParser = require('body-parser');
-const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser');
-const connectDb = require('./dB/connect.js')
-const Logger = require('./middleware/Logger.js')
-const cors = require('cors')
+const cors = require('cors');
+const connectDb = require('./dB/connect.js');
+const Logger = require('./middleware/Logger.js');
+
+// Routes
+const AuthRoutes = require("./Routes/AuthRoutes.js");
+const OtpRoutes = require("./Routes/otpRoutes.js");
+const ResetPasswordRoutes = require("./Routes/ResetPasswordRoutes.js");
 
 const app = express();
 
-app.use(cors())
-// middlewares
+// Middleware
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use(Logger); // Make sure logger runs before routes
 
-// routes
-app.use('/api/auth', require('./routes/authRouter.js'));
-app.use('/api/otp', require('./routes/otpRouter.js'));
+// Mount routes
+app.use('/api/auth', AuthRoutes);
+app.use('/api/otp', OtpRoutes);
+app.use('/api/reset-password', ResetPasswordRoutes);
 
-
-app.use(Logger)
-
-// server
+// Server
 const port = process.env.PORT || 3000;
 
 const start = async () => {
     try {
         await connectDb(process.env.MONGO_URL);
-        console.log('Database connected')
+        console.log('Database connected');
         app.listen(port, () => {
             console.log(`Server is running on port ${port}`);
-        })
-    }
-    catch (err) {
+        });
+    } catch (err) {
         console.log(err);
     }
-}
-start()
+};
+
+start();
