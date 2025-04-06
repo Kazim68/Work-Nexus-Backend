@@ -1,23 +1,34 @@
 const express = require('express')
-const { SignUp, GenerateAndSendOtp, VerifyOtp, UpdateEmail, Signin } = require("../Controller/Auth/Signup"); 
+const { signUp } = require("../Controller/Auth/Signup");
+const { generateAndSendOtp, verifyOtp } = require("../Controller/Auth/OTP")
+const { signIn } = require("../Controller/Auth/SignIn");
+const {updateEmail} = require("../Controller/Employee/Employee");
+const { generateAndSendVerificationLink, verifyRecoveryToken, resetPassword } = require('../Controller/Auth/RecoverPassword');
+
 
 
 const router = express.Router();
 
 
+//SIGNUP ROUTES
+router.post('/signUp', signUp)
 
-router.post('/signup' , SignUp)
-
-router.post('/sendotp' , GenerateAndSendOtp)
-
-router.post('/verifyotp' , VerifyOtp)
-
-router.put('/update-email/:oldEmail', UpdateEmail);
+//OTP ROUTES
+router.post('/sendotp', generateAndSendOtp)
+router.post('/verifyOtp', verifyOtp)
 
 
-router.post('/signin', Signin);
+//SIGNIN ROUTES
+router.post('/signIn', signIn);
 
 
+//UPDATE EMPLOYEE EMAIL ROUTES
+router.put('/update-email/:oldEmail', updateEmail);
+
+//RESET PASSWORD ROUTES
+router.post('/send-recovery-link', generateAndSendVerificationLink);
+router.get('/verify-token' , verifyRecoveryToken)
+router.post('/reset-password', resetPassword);
 
 
 module.exports = router
