@@ -25,16 +25,11 @@ const signUp = async (req, res, next) => {
         }
 
         // Hash the password
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+        // const salt = await bcrypt.genSalt(10);
+        // const hashedPassword = await bcrypt.hash(password, salt);
 
         // Create new employee
-        const newEmployee = new Employee({
-            FirstName: firstName,
-            LastName: lastName,
-            Email: email,
-            Password: hashedPassword,
-        });
+        const newEmployee = new Employee({ firstName, lastName, email, password });
 
         await newEmployee.save();
 

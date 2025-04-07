@@ -19,6 +19,9 @@ const EmployeeSchema = new mongoose.Schema({
     lastName: {
         type: String,
     },
+    name: {
+        type: String
+    },
     dateOfBirth: {
         type: Date,
     },
@@ -97,7 +100,7 @@ EmployeeSchema.pre('save', async function () {
 
 EmployeeSchema.methods.createJWT = function () {
     return jwt.sign(
-        { userId: this._id, name: this.userName },
+        { userId: this._id, name: this.email },
         process.env.JWT_SECRET,
         {
         expiresIn: process.env.JWT_LIFETIME,
