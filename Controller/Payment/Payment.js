@@ -2,9 +2,9 @@ const express = require('express');
 const Stripe = require('stripe');
 const Employee = require('../../models/Employee');
 const PricingPlan = require('../../models/PricingPlan')
-
+const moment = require('moment');
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
-
+const mongoose = require('mongoose');
 
 // Create Stripe Checkout Session
 const checkoutSession = async (req, res) => {
@@ -26,7 +26,7 @@ const checkoutSession = async (req, res) => {
           quantity: 1,
         },
       ],
-      success_url: 'http://localhost:3000/payment-success',
+      success_url: 'http://localhost:5173/pricing-plan',
       cancel_url: 'http://localhost:3000/payment-cancel',
       metadata: {
         employeeId,
@@ -42,57 +42,58 @@ const checkoutSession = async (req, res) => {
   }
 };
 
+
 const stripeWebHook = async (req, res) => {
-    const sig = req.headers['stripe-signature'];
-  
-    let event;
-  
+  const sig = req.headers['stripe-signature'];
+  let event;
+
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+  } catch (err) {
+    console.error('Webhook Error:', err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+
+    const employeeId = session.metadata.employeeId;
+    const planType = session.metadata.planType;
+    const price = session.metadata.price;
+
     try {
-      event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
-    } catch (err) {
-      console.error('Webhook Error:', err.message);
-      return res.status(400).send(`Webhook Error: ${err.message}`);
-    }
-  
-    if (event.type === 'checkout.session.completed') {
-      const session = event.data.object;
-  
-      const employeeId = session.metadata.employeeId;
-      const planType = session.metadata.planType;
-      const price = session.metadata.price;
-  
-      try {
-        const employee = await Employee.findById(employeeId);
-        if (!employee) throw new Error('Employee not found');
-  
-        const expiresAt = moment().add(30, 'days').toDate();
-  
-        let pricingPlan = await PricingPlan.findOne({ employeeId });
-  
-        if (pricingPlan) {
-          pricingPlan.planType = planType;
-          pricingPlan.price = price;
-          pricingPlan.expiresAt = expiresAt;
-          pricingPlan.isActive = true;
-        } else {
-          pricingPlan = new PricingPlan({
-            employeeId,
-            planType,
-            price,
-            expiresAt,
-            isActive: true,
-          });
-        }
-  
-        await pricingPlan.save();
-        console.log(`✅ Plan updated for employee ${employeeId}`);
-      } catch (error) {
-        console.error('Error updating plan from webhook:', error.message);
+      const employee = await Employee.findById(new mongoose.Types.ObjectId(employeeId));
+      if (!employee) throw new Error('Employee not found');
+
+      const expiresAt = moment().add(30, 'days').toDate();
+
+      let pricingPlan = await PricingPlan.findOne({ employeeId: employee._id });
+
+      if (pricingPlan) {
+        pricingPlan.planType = planType;
+        pricingPlan.price = price;
+        pricingPlan.expiresAt = expiresAt;
+        pricingPlan.isActive = true;
+      } else {
+        pricingPlan = new PricingPlan({
+          employeeId: employee._id,
+          planType,
+          price,
+          expiresAt,
+          isActive: true,
+        });
       }
+
+      await pricingPlan.save();
+      console.log(`Plan updated/created for employee ${employeeId}`);
+    } catch (error) {
+      console.error('Error updating/creating plan from webhook:', error.message);
     }
-  
-    res.json({ received: true });
+  }
+
+  res.json({ received: true });
 };
+
   
 
 

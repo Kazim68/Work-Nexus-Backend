@@ -1,48 +1,40 @@
 const Employee = require('../../models/Employee')
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+const PricingPlan = require('../../models/PricingPlan');
 
 const signIn = async (req, res) => {
-  try {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
 
-    // Validate input
-    if (!email || !password) {
-      return res.status(400).json({ message: "Email and password are required." });
-    }
-
-    // Check if user exists
-    const user = await Employee.findOne({ email: email });
-    if (!user) {
-      return res.status(401).json({ message: "Invalid email or password." });
-    }
-
-    // Check password
-    const isMatch = user.comparePassword(password);
-    if (!isMatch) {
-      return res.status(401).json({ message: "Invalid email or password." });
-    }
-
-    // Generate JWT
-    const token = jwt.sign(
-      { id: user._id, email: user.email },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
-
-    const userWithoutPassword = user.toObject();
-    delete userWithoutPassword.password;
-
-    // Return success response with token and basic user info
-    res.status(200).json({
-      message: "Login successful",
-      token,
-      user: userWithoutPassword
-    });
-  } catch (error) {
-    console.error("Login error:", error);
-    res.status(500).json({ message: "Internal server error." });
+  // 1. Find employee
+  const employee = await Employee.findOne({ email });
+  if (!employee) {
+    return res.status(401).json({ message: 'Invalid Credentials' });
   }
+
+
+  // 2. Match password
+  const isMatch = await employee.comparePassword(password);
+  if (!isMatch) {
+    return res.status(401).json({ message: 'Invalid Credentials' });
+  }
+
+  // 3. Get associated pricing plan
+  const pricingPlan = await PricingPlan.findOne({ employeeId: employee._id });
+
+  // 4. Create token
+  const token = employee.createJWT();
+
+  // 5. Return employee + plan + token
+  res.status(200).json({
+    success: true,
+    message: 'Login successful',
+    token,
+    employee: {
+      id: employee._id,
+      email: employee.email,
+      name: employee.name,
+    },
+    pricingPlan: pricingPlan || null
+  });
 };
 
 module.exports = { signIn }

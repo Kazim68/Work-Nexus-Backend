@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const connectDb = require('./dB/connect.js');
 const Logger = require('./middleware/Logger.js');
+const rawExpress = require('./Utils/RawExpress.js')
 
 // Routes
 const AuthRoutes = require("./Routes/AuthRoutes.js");
@@ -17,6 +18,10 @@ const app = express();
 
 // Middleware
 app.use(cors());
+
+rawExpress(app)
+
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
