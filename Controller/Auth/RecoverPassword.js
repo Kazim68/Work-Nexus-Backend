@@ -93,28 +93,24 @@ const resetPassword = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-
-        // Find the associated user by the token's email (or user ID)
-        const user = await Employee.findOne({ email: email });
+        // Find the associated user by email
+        const user = await Employee.findOne({ email });
 
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
 
-        // Hash the new password
-        const hashedPassword = await bcrypt.hash(password, 10);
+        // Set the new password directly
+        user.password = password; // The pre-save hook will hash it
+        await user.save(); // Triggers pre('save') and hashes password
 
-        // Update the user's password
-        user.password = hashedPassword;
-        await user.save();
-
-        // Send success response
         return res.status(200).json({ message: "Password updated successfully" });
     } catch (error) {
         console.error("Error updating password:", error);
         return res.status(500).json({ message: "Internal server error" });
     }
 };
+
 
 
 

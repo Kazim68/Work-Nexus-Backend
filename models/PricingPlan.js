@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const pricingPlanSchema = new mongoose.Schema({
     planType: {
         type: String,
-        enum: ['free', 'medium', 'pro'],
+        enum: ['starter', 'advance', 'pro'],
         required: true,
         unique: true
     },
