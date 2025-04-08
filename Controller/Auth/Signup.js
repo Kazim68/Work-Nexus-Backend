@@ -19,7 +19,7 @@ const signUp = async (req, res, next) => {
         }
 
         // Check if email already exists
-        const existingUser = await Employee.findOne({ email });
+        const existingUser = await Employee.findOne({ email:email });
         if (existingUser) {
             return next(customError(409, "Email is already in use"));
         }
@@ -33,7 +33,7 @@ const signUp = async (req, res, next) => {
 
         await newEmployee.save();
 
-        res.status(201).json({ success: true, message: "Employee registered successfully" });
+        res.status(201).json({ success: true, message: "Employee registered successfully" , employeeId: newEmployee._id });
 
     } catch (error) {
         next(error); // Pass error to middleware
