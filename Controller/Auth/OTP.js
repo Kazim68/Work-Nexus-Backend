@@ -52,7 +52,7 @@ const verifyOtp = async (req, res) => {
     }
 
     try {
-        const existingOtp = await OTP.findOne({ email });
+        const existingOtp = await OTP.findOne({ email:email });
 
         if (!existingOtp) {
             return res.status(400).json({ message: "OTP not found. Request a new one." });
@@ -74,7 +74,7 @@ const verifyOtp = async (req, res) => {
         //OTP is valid, delete it from DB after verification
 
         const updatedEmployee = await Employee.findOneAndUpdate(
-            { Email: email },
+            { email: email },
             { $set: { IsVerified: true } },
             { new: true }
         );

@@ -8,7 +8,7 @@ const router = express.Router();
 //RESET PASSWORD ROUTES
 router.post('/send-recovery-link', generateAndSendVerificationLink);
 router.get('/verify-token' , verifyRecoveryToken)
-router.post('/reset-password', resetPassword);
+router.post('/update-password', resetPassword);
 
 
 module.exports = router

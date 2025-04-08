@@ -10,6 +10,8 @@ const Logger = require('./middleware/Logger.js');
 const AuthRoutes = require("./Routes/AuthRoutes.js");
 const OtpRoutes = require("./Routes/otpRoutes.js");
 const ResetPasswordRoutes = require("./Routes/ResetPasswordRoutes.js");
+const PaymentRoutes = require("./Routes/PaymentRoutes.js");
+
 
 const app = express();
 
@@ -24,6 +26,8 @@ app.use(Logger); // Make sure logger runs before routes
 app.use('/api/auth', AuthRoutes);
 app.use('/api/otp', OtpRoutes);
 app.use('/api/reset-password', ResetPasswordRoutes);
+app.use('/api/payment', PaymentRoutes);
+
 
 // Server
 const port = process.env.PORT || 3000;

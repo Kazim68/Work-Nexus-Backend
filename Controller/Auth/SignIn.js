@@ -12,7 +12,7 @@ const signIn = async (req, res) => {
     }
 
     // Check if user exists
-    const user = await Employee.findOne({ Email: email });
+    const user = await Employee.findOne({ email: email });
     if (!user) {
       return res.status(401).json({ message: "Invalid email or password." });
     }
@@ -25,13 +25,13 @@ const signIn = async (req, res) => {
 
     // Generate JWT
     const token = jwt.sign(
-      { id: user._id, email: user.Email },
+      { id: user._id, email: user.email },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
     const userWithoutPassword = user.toObject();
-    delete userWithoutPassword.Password;
+    delete userWithoutPassword.password;
 
     // Return success response with token and basic user info
     res.status(200).json({

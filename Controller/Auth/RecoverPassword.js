@@ -15,7 +15,7 @@ const generateAndSendVerificationLink = async (req, res) => {
         const expiresAt = new Date(Date.now() + 30 * 60 * 1000); // Link expires in 30 minutes
 
         // Find the user by email
-        const user = await Employee.findOne({ Email: email });
+        const user = await Employee.findOne({ email: email });
 
         if (!user) {
             return res.status(404).json({ message: "User not found" });
@@ -44,7 +44,13 @@ const generateAndSendVerificationLink = async (req, res) => {
         const recoveryLink = `${process.env.RECOVERY_LINK}?token=${token}`;
 
 
-        await sendEmail(email, 'Password Recovery Link', `Click the link below to recover your password (valid for 30 minutes):\n\n${recoveryLink}`); // Send the plain OTP, not the hashed one
+        await sendEmail(
+            email,
+            'Password Recovery Link',
+            `Click the link below to recover your password (valid for 30 minutes):<br><br>
+            <a href="${recoveryLink}" style="color: #4f46e5; text-decoration: underline;">Click here to reset your password</a>`
+        );
+           // Send the plain OTP, not the hashed one
 
 
         return res.status(200).json({ message: "Recovery link sent to your email" });
@@ -89,7 +95,7 @@ const resetPassword = async (req, res) => {
     try {
 
         // Find the associated user by the token's email (or user ID)
-        const user = await Employee.findOne({ Email: email });
+        const user = await Employee.findOne({ email: email });
 
         if (!user) {
             return res.status(404).json({ message: "User not found" });
@@ -99,7 +105,7 @@ const resetPassword = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Update the user's password
-        user.Password = hashedPassword;
+        user.password = hashedPassword;
         await user.save();
 
         // Send success response
