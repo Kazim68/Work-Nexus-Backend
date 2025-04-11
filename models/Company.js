@@ -5,6 +5,15 @@ const CompanySchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    CompanyType: {
+        type: String,
+        enum: ['StartUp', 'Enterprise', 'Non Profit'], // Example enum values
+        required: true
+    },
+    EmployeeCount: {
+        type: String,
+        required: true,
+    },
     Address: {
         type: String,
         required: true

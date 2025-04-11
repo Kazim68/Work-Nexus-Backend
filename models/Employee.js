@@ -1,31 +1,41 @@
 const mongoose = require('mongoose');
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const { UserRoles, UserStatus, Departments, DocumentTypes } = require('../utils/Enums.js');
 
 const EmployeeSchema = new mongoose.Schema({
+    userRole: {
+        type: String,
+        enum: [UserRoles.ADMIN, UserRoles.EMPLOYEE, UserRoles.HR],
+    },
     profilePic: {
         type: String,
     },
-    EmployeeCode: {
+    employeeCode: {
         type: String,
     },
-    FirstName: {
+    firstName: {
         type: String,
     },
-    LastName: {
+    lastName: {
         type: String,
     },
-    DateOfBirth: {
+    name: {
+        type: String
+    },
+    dateOfBirth: {
         type: Date,
     },
-    Gender: {
+    gender: {
         type: Boolean,
     },
-    Address: {
+    address: {
         type: String,
     },
-    PhoneNumber: {
+    phoneNumber: {
         type: String,
     },
-    Email: {
+    email: {
         type: String,
         required: [true, 'Please provide email'],
         match: [
@@ -34,45 +44,102 @@ const EmployeeSchema = new mongoose.Schema({
         ],
         unique: true,
     },
-    Password: {
+    password: {
         type: String,
     },
     isPassLocked: {
         type: Boolean,
+        default: false,
     },
-    HireDate: {
+    hireDate: {
         type: Date,
     },
-    Status: {
+    status: {
         type: String,
-        enum: ['Active', 'Inactive', 'Suspended'], // Example enum values
+        enum: [UserStatus.ACTIVE, UserStatus.INACTIVE, UserStatus.SUSPENDED], 
+        default: UserStatus.ACTIVE,
     },
-    PositionID: {
+    positionID: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Position', // Reference to the Position table
     },
-    Department: {
+    department: {
         type: String,
-        enum: ['HR', 'IT', 'Finance', 'Sales'], // Example enum values
+        enum: [Departments.HR, Departments.IT], 
     },
-    CompanyID: {
+    companyID: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Company', 
     },
-    Documents: [{
+    documents: [{
         URL: {
             type: String,
             required: [true, 'Please provide document URL'],
         },
         category: {
             type: String,
-            enum: ['Resume', 'Certificate', 'ID Proof'], // Example enum values
+            enum: [DocumentTypes.RESUME, DocumentTypes.EXPERIENCE_CERTIFICATE, DocumentTypes.ID_PROOF, DocumentTypes.PAYSLIP, DocumentTypes.OTHER],
         },
         dateUploaded: {
             type: Date,
             default: Date.now,
         },
-    }]
+    }],
+    isVerified:{
+        type:Boolean,
+        default:false
+    },
+    LeaveInfo: {
+        UsedLeaves: {
+            type: Number,
+            required: true,
+            default: 0
+        },
+        RemainingLeaves: {
+            type: Number,
+            required: true,
+            default: 30
+        }
+    },
+
+    resetPasswordToken: String,         
+    resetPasswordExpire: Date, 
+    
 });
+
+EmployeeSchema.pre('save', async function () {
+    if (!this.isModified('password')) return 
+    const salt = await bcrypt.genSalt(10)
+    this.password = await bcrypt.hash(this.password, salt)
+})
+
+EmployeeSchema.methods.createJWT = function () {
+    return jwt.sign(
+        { userId: this._id, email: this.email, role: this.userRole },
+        process.env.JWT_SECRET,
+        {
+        expiresIn: process.env.JWT_LIFETIME,
+        }
+    )
+}
+
+EmployeeSchema.methods.comparePassword = async function (canditatePassword) {
+    const isMatch = await bcrypt.compare(canditatePassword, this.password)
+    return isMatch
+}
+
+// Generate and hash password reset token
+EmployeeSchema.methods.getResetPasswordToken = function () {
+    const resetToken = crypto.randomBytes(20).toString('hex')
+
+    // Hash token and set to resetPasswordToken field
+    this.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex')
+
+    // Set expire time (e.g., 10 minutes)
+    this.resetPasswordExpire = Date.now() + 10 * 60 * 1000
+
+    return resetToken
+}
+
 
 module.exports = mongoose.model('Employee', EmployeeSchema);
