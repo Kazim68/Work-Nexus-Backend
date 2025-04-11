@@ -24,12 +24,6 @@ const signUp = async (req, res, next) => {
             return next(customError(409, "Email is already in use"));
         }
 
-        
-
-        // Hash the password
-        // const salt = await bcrypt.genSalt(10);
-        // const hashedPassword = await bcrypt.hash(password, salt);
-
         // Create new employee
         const newEmployee = new Employee({ firstName, lastName, email, password });
         newEmployee.userRole = 'admin';

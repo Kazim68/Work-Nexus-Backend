@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { LeaveTypes, LeaveStatus } = require('../utils/Enums.js');
 
 const LeaveRequestSchema = new mongoose.Schema({
     EmployeeID: {
@@ -17,7 +18,7 @@ const LeaveRequestSchema = new mongoose.Schema({
     LeaveType: {
         type: String,
         required: true,
-        enum: ['Annual Leave', 'Sick Leave', 'Casual Leave', 'Maternity Leave', 'Paternity Leave', 'Unpaid Leave']
+        enum: [LeaveTypes.SICK, LeaveTypes.CASUAL, LeaveTypes.EARNED, LeaveTypes.UNPAID]
     },
     LeaveReason: {
         type: String,
@@ -26,7 +27,8 @@ const LeaveRequestSchema = new mongoose.Schema({
     LeaveStatus: {
         type: String,
         required: true,
-        enum: ['Pending', 'Approved', 'Rejected'] // Example statuses
+        enum: [LeaveStatus.PENDING, LeaveStatus.APPROVED, LeaveStatus.REJECTED],
+        default: LeaveStatus.PENDING
     }
 });
 
