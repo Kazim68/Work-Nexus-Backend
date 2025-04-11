@@ -28,11 +28,7 @@ const signIn = async (req, res) => {
     success: true,
     message: 'Login successful',
     token,
-    employee: {
-      id: employee._id,
-      email: employee.email,
-      name: employee.name,
-    },
+    employee,
     pricingPlan: pricingPlan || null
   });
 };

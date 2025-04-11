@@ -1,11 +1,12 @@
 const mongoose = require('mongoose');
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const { UserRoles, UserStatus, Departments, DocumentTypes } = require('../utils/Enums.js');
 
 const EmployeeSchema = new mongoose.Schema({
     userRole: {
         type: String,
-        enum: ['admin', 'employee', 'HR'],
+        enum: [UserRoles.ADMIN, UserRoles.EMPLOYEE, UserRoles.HR],
     },
     profilePic: {
         type: String,
@@ -48,13 +49,15 @@ const EmployeeSchema = new mongoose.Schema({
     },
     isPassLocked: {
         type: Boolean,
+        default: false,
     },
     hireDate: {
         type: Date,
     },
     status: {
         type: String,
-        enum: ['Active', 'Inactive', 'Suspended'], // Example enum values
+        enum: [UserStatus.ACTIVE, UserStatus.INACTIVE, UserStatus.SUSPENDED], 
+        default: UserStatus.ACTIVE,
     },
     positionID: {
         type: mongoose.Schema.Types.ObjectId,
@@ -62,7 +65,7 @@ const EmployeeSchema = new mongoose.Schema({
     },
     department: {
         type: String,
-        enum: ['HR', 'IT', 'Finance', 'Sales'], // Example enum values
+        enum: [Departments.HR, Departments.IT], 
     },
     companyID: {
         type: mongoose.Schema.Types.ObjectId,
@@ -75,7 +78,7 @@ const EmployeeSchema = new mongoose.Schema({
         },
         category: {
             type: String,
-            enum: ['Resume', 'Certificate', 'ID Proof'], // Example enum values
+            enum: [DocumentTypes.RESUME, DocumentTypes.EXPERIENCE_CERTIFICATE, DocumentTypes.ID_PROOF, DocumentTypes.PAYSLIP, DocumentTypes.OTHER],
         },
         dateUploaded: {
             type: Date,
@@ -87,22 +90,17 @@ const EmployeeSchema = new mongoose.Schema({
         default:false
     },
     LeaveInfo: {
-        TotalLeaves: {
-            type: Number,
-            required: true
-        },
         UsedLeaves: {
             type: Number,
-            required: true
+            required: true,
+            default: 0
         },
         RemainingLeaves: {
             type: Number,
-            required: true
+            required: true,
+            default: 30
         }
     },
-    Notifications: [{
-        
-    }],
 
     resetPasswordToken: String,         
     resetPasswordExpire: Date, 

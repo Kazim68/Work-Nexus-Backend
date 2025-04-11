@@ -33,6 +33,8 @@ app.use('/api/otp', OtpRoutes);
 app.use('/api/reset-password', ResetPasswordRoutes);
 app.use('/api/payment', PaymentRoutes);
 app.use('/api/leave', require('./Routes/LeaveRoutes.js'));
+app.use('/api/employee', require('./Routes/EmployeeRoutes.js'));
+app.use('/api/notifications', require('./Routes/NotificationsRouter.js'));
 
 
 // Server

@@ -1,6 +1,58 @@
-const Employee = require('../../models/Employee')
+const Employee = require('../../models/Employee');
+const { UserRoles, Departments } = require('../../utils/Enums.js');
+
+// get all employees
+const getAllEmployees = async (req, res) => { 
+    try {
+        const employees = await Employee.find({});
+        res.status(200).json({ success: true, data: employees });
+    } catch (error) {
+        console.error("Error fetching all employees:", error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+}
 
 
+// create employee
+const createEmployee = async (req, res) => {
+    try {
+      const {
+        firstName, lastName, name, dateOfBirth, gender,
+        address, phoneNumber, email, hireDate, department,
+      } = req.body;
+  
+      const existingEmployee = await Employee.findOne({ email });
+      if (existingEmployee) {
+        return res.status(200).json({ success: false, message: 'Employee already exists with this email' });
+      }
+  
+      //const password = Math.random().toString(36).slice(-8); // Random 8 character password
+      const password = 'test123'; // Default password for testing
+        
+      const dob = new Date(dateOfBirth);
+      const hDate = new Date(hireDate);
+      const isMale = gender.toLowerCase() === 'male';
+      const userRole = UserRoles.EMPLOYEE;
+  
+      if (!Object.values(Departments).includes(department)) {
+        return res.status(200).json({ success: false, message: 'Invalid department' });
+      }
+  
+      const employee = new Employee({ userRole, firstName, lastName, name, 
+        dateOfBirth: dob, gender: isMale,
+        address, phoneNumber, email, password,
+        hireDate: hDate, department
+      });
+  
+      await employee.save();
+  
+      res.status(201).json({ success: true, message: 'Employee created successfully', employee, password });
+    } catch (error) {
+      console.error('Error creating employee:', error);
+      res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+  };
+  
 
 //UPDATE EMAIL
 const updateEmail = async (req, res) => {
@@ -68,4 +120,4 @@ const increaseLeaveBalance = async (req, res) => {
 
 
 
-module.exports = {updateEmail, increaseLeaveBalance};
+module.exports = {updateEmail, increaseLeaveBalance, getAllEmployees, createEmployee};
