@@ -17,7 +17,7 @@ const LeaveRequestSchema = new mongoose.Schema({
     LeaveType: {
         type: String,
         required: true,
-        enum: ['Sick Leave', 'Casual Leave', 'Annual Leave', 'Maternity Leave'] // Example leave types
+        enum: ['Annual Leave', 'Sick Leave', 'Casual Leave', 'Maternity Leave', 'Paternity Leave', 'Unpaid Leave']
     },
     LeaveReason: {
         type: String,

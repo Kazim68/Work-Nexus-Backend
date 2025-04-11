@@ -86,6 +86,23 @@ const EmployeeSchema = new mongoose.Schema({
         type:Boolean,
         default:false
     },
+    LeaveInfo: {
+        TotalLeaves: {
+            type: Number,
+            required: true
+        },
+        UsedLeaves: {
+            type: Number,
+            required: true
+        },
+        RemainingLeaves: {
+            type: Number,
+            required: true
+        }
+    },
+    Notifications: [{
+        
+    }],
 
     resetPasswordToken: String,         
     resetPasswordExpire: Date, 
@@ -100,7 +117,7 @@ EmployeeSchema.pre('save', async function () {
 
 EmployeeSchema.methods.createJWT = function () {
     return jwt.sign(
-        { userId: this._id, name: this.email },
+        { userId: this._id, email: this.email, role: this.userRole },
         process.env.JWT_SECRET,
         {
         expiresIn: process.env.JWT_LIFETIME,
