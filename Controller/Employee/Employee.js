@@ -35,8 +35,37 @@ const updateEmail = async (req, res) => {
 };
 
 
+// increase employee leave balance
+const increaseLeaveBalance = async (req, res) => {
+    const { employeeId, leaveDays } = req.body;
+    if (!employeeId || !leaveDays) {
+        return res.status(400).json({ success: false, message: 'Employee ID and leave days are required' });
+    }
+
+    try {
+        const employee = await Employee.findById(employeeId);
+        if (!employee) {
+            throw new Error('Employee not found');
+        }
+
+        employee.LeaveInfo.RemainingLeaves += leaveDays;
+        await employee.save();
+
+        return res.status(200).json({
+            success: true,
+            message: `Leave balance increased by ${leaveDays} days for employee ${employeeId}`,
+            remainingLeaves: employee.LeaveInfo.RemainingLeaves
+        });
+    } catch (error) {
+        console.error("Error increasing leave balance:", error);
+        return res.status(500).json({
+            success: false,
+            message: error.message || 'An error occurred while increasing leave balance'
+        });
+    }
+};
 
 
 
 
-module.exports = {updateEmail}
+module.exports = {updateEmail, increaseLeaveBalance};

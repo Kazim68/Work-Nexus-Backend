@@ -32,6 +32,7 @@ const signUp = async (req, res, next) => {
 
         // Create new employee
         const newEmployee = new Employee({ firstName, lastName, email, password });
+        newEmployee.userRole = 'admin';
 
         await newEmployee.save();
 
