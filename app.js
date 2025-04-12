@@ -36,6 +36,9 @@ app.use('/api/leave', require('./Routes/LeaveRoutes.js'));
 app.use('/api/employee', require('./Routes/EmployeeRoutes.js'));
 app.use('/api/notifications', require('./Routes/NotificationsRouter.js'));
 
+app.use('/api/company', require('./Routes/CompanyRoutes.js'));
+
+
 
 // Server
 const port = process.env.PORT || 3000;
