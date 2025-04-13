@@ -27,6 +27,7 @@ exports.googleAuth = async (req, res, next) => {
         }
         
         const token = user.createJWT();
+        console.log(user);
 
         res.status(200).json({
             message: 'success',
