@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { UserRoles } = require('../utils/Enums.js');
-
-const { applyLeave, getAllLeaveRequests, getMyLeaveRequests, approveLeave, rejectLeave} = require('../Controller/Leave/Leave.js');
 const { auth, authorizeRoles } = require('../middleware/authMiddleware.js');
+
+const { applyLeave, getAllLeaveRequests, getMyLeaveRequests, cancelLeaveRequest, employeeLeaveSummary,
+    approveLeave, rejectLeave, resetLeaveBalanceOfAllEmployees } = require('../Controller/Leave/Leave.js');
 const { increaseLeaveBalance } = require('../Controller/Employee/Employee.js');
 
 
@@ -13,6 +14,8 @@ router.get('/all-leave-requests', auth, authorizeRoles(UserRoles.ADMIN, UserRole
 router.patch('/approve/:leaveId',auth, authorizeRoles(UserRoles.ADMIN, UserRoles.HR), approveLeave);
 router.patch('/reject/:leaveId', auth, authorizeRoles(UserRoles.ADMIN, UserRoles.HR), rejectLeave);
 router.patch('/increase-leave-balance', auth, authorizeRoles(UserRoles.ADMIN, UserRoles.HR), increaseLeaveBalance);
-
+router.patch('/reset-leave-balance', auth, authorizeRoles(UserRoles.ADMIN, UserRoles.HR), resetLeaveBalanceOfAllEmployees);
+router.delete('/cancelLeave/:leaveId', auth, authorizeRoles(UserRoles.EMPLOYEE), cancelLeaveRequest); 
+router.get('/employee-leave-summary/:employeeId', auth, employeeLeaveSummary);
 
 module.exports = router;

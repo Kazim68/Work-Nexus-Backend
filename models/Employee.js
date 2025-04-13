@@ -90,15 +90,24 @@ const EmployeeSchema = new mongoose.Schema({
         default:false
     },
     LeaveInfo: {
-        UsedLeaves: {
+        AnnualLeaves: {
             type: Number,
             required: true,
-            default: 0
+            default: 30
         },
         RemainingLeaves: {
             type: Number,
             required: true,
             default: 30
+        },
+        UnpaidLeaves: {
+            type: Number,
+            required: true,
+            default: 0
+        },
+        LastResetDate: {
+            type: Date,
+            default: Date.now
         }
     },
 

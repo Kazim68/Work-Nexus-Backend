@@ -38,7 +38,6 @@ const LeaveStatus = Object.freeze({
 const LeaveTypes = Object.freeze({
     SICK: 'sick',
     CASUAL: 'casual',
-    EARNED: 'earned',
     UNPAID: 'unpaid',
 });
 

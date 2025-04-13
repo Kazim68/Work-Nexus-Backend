@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const {auth} = require('../middleware/authMiddleware');
+const {auth, authorizeRoles} = require('../middleware/authMiddleware');
 const upload = require('../Utils/Multer');
+const { UserRoles } = require('../utils/Enums.js');
 const {
   createCompany,
   uploadDocuments
@@ -10,9 +11,9 @@ const {
 
 
 // Auth-protected routes
-router.post('/register', auth, createCompany);
+router.post('/register', auth, authorizeRoles(UserRoles.ADMIN), createCompany);
 
-router.post("/upload", auth, upload.fields([
+router.post("/upload", auth, authorizeRoles(UserRoles.ADMIN), upload.fields([
     { name: 'documents', maxCount: 5 },
     { name: 'logo', maxCount: 1 }
   ]), uploadDocuments);
