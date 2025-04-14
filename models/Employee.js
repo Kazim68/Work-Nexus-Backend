@@ -64,8 +64,7 @@ const EmployeeSchema = new mongoose.Schema({
         ref: 'Position', // Reference to the Position table
     },
     department: {
-        type: String,
-        enum: [Departments.HR, Departments.IT], 
+        type: String, 
     },
     companyID: {
         type: mongoose.Schema.Types.ObjectId,

@@ -49,6 +49,13 @@ const NotificationTypes = Object.freeze({
     DOCUMENT_UPLOADED: 'document_uploaded',
 });
 
+
+const PricingPlans = Object.freeze({
+    BASIC: 'basic',
+    STANDARD: 'standard',
+    PREMIUM: 'premium',
+});
+
 // Export all enums
 module.exports = {
     UserRoles,
@@ -58,5 +65,6 @@ module.exports = {
     DocumentTypes,
     LeaveTypes,
     NotificationTypes,
+    PricingPlans
 };
 
