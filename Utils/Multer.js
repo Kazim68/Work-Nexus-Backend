@@ -13,6 +13,9 @@ const storage = multer.diskStorage({
       folder = 'uploads/Company/Documents';
     } else if (file.fieldname === 'logo') {
       folder = 'uploads/Company/logos';
+    } else if(file.fieldname === 'employees'){
+      folder = 'uploads/Company/employees';
+
     }
 
     // Ensure the folder exists
@@ -27,13 +30,22 @@ const storage = multer.diskStorage({
   }
 });
   
-  const fileFilter = (req, file, cb) => {
-    if (file.mimetype === 'application/pdf' || file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
-      cb(null, true); // Accept PDF and JPEG files
-    } else {
-      cb(new Error('Invalid file type. Only PDF and JPEG files are allowed.'), false);
-    }
-  };
+const fileFilter = (req, file, cb) => {
+  const allowedTypes = [
+    'application/pdf',
+    'image/jpeg',
+    'image/png',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+    'application/vnd.ms-excel' // .xls
+  ];
+
+  if (allowedTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Invalid file type. Only PDF, JPEG, PNG, and Excel files are allowed.'), false);
+  }
+};
+
   
   // Handling multiple fields (documents, logo)
 const upload = multer({ storage: storage, fileFilter: fileFilter });

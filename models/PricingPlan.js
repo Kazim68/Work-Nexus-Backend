@@ -1,9 +1,12 @@
 const mongoose = require('mongoose');
+const { PricingPlans } = require('../utils/Enums.js');
+
+
 
 const pricingPlanSchema = new mongoose.Schema({
     planType: {
         type: String,
-        enum: ['starter', 'advance', 'pro'],
+        enum: [PricingPlans.BASIC, PricingPlans.STANDARD, PricingPlans.PREMIUM],
         required: true,
         unique: true
     },
