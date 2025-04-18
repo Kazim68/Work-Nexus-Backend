@@ -179,6 +179,32 @@ const increaseLeaveBalance = async (req, res) => {
 };
 
 
+// Reset Password
+const changePassword = async (req, res) => {
+    const { newPassword } = req.body;
+    const employeeId = req.user.userId;
+
+    if (!newPassword) {
+        return res.status(400).json({ success: false, message: 'Employee ID and new password are required.' });
+    }
+
+    try {
+        const employee = await Employee.findById(employeeId);
+
+        if (!employee) {
+            return res.status(404).json({ success: false, message: 'Employee not found.' });
+        }
+
+        employee.password = newPassword;
+        await employee.save();
+
+        return res.status(200).json({ success: true, message: 'Password updated successfully.' });
+    } catch (error) {
+        console.error("Error resetting password:", error);
+        return res.status(500).json({ success: false, message: 'Server error while resetting password.' });
+    }
+};
 
 
-module.exports = { updateEmail, increaseLeaveBalance, getAllEmployees, createEmployee, bulkUpload };
+
+module.exports = { updateEmail, increaseLeaveBalance, getAllEmployees, createEmployee, bulkUpload, changePassword };
