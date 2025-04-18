@@ -12,6 +12,6 @@ router.post('/create', createEmployee)
 router.post("/upload/:companyId", auth , authorizeRoles(UserRoles.ADMIN) , upload.single("employees") ,bulkUpload)
 
 //Added reset password route
-router.post('/change-password', changePassword);
+router.post('/change-password', auth , changePassword);
 
 module.exports = router
