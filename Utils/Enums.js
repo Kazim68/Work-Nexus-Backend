@@ -56,6 +56,28 @@ const PricingPlans = Object.freeze({
     PREMIUM: 'premium',
 });
 
+
+const IssueTypes = Object.freeze({
+    PERSONAL:'Personal' , 
+    ATTENDANCE:'Attendance' , 
+    HARDWARE:'Hardware', 
+    SOFTWARE:'Software', 
+    NETWORK:'Network', 
+    OTHER:'Other'
+});
+
+
+const TokkenStatus = Object.freeze({
+    OPEN:'Open', 
+    INPROGRESS:'In Progress', 
+    RESOLVED:'Resolved', 
+    CLOSED:'Closed',
+    REJECTED:'Rejected'
+})
+
+
+
+
 // Export all enums
 module.exports = {
     UserRoles,
@@ -65,6 +87,8 @@ module.exports = {
     DocumentTypes,
     LeaveTypes,
     NotificationTypes,
-    PricingPlans
+    PricingPlans,
+    IssueTypes,
+    TokkenStatus
 };
 

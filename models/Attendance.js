@@ -6,15 +6,11 @@ const AttendanceSchema = new mongoose.Schema({
         ref: 'Employee',
         required: true
     },
-    AttendanceDate: {
-        type: Date,
-        required: true
-    },
     ClockInTime: {
-        type: Number, 
+        type: Date, 
     },
     ClockOutTime: {
-        type: Number, 
+        type: Date, 
     }
 });
 
