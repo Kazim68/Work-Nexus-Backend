@@ -5,7 +5,7 @@ const signIn = async (req, res) => {
   const { email, password } = req.body;
 
   // 1. Find employee
-  const employee = await Employee.findOne({ email });
+  const employee = await Employee.findOne({ email }).populate('companyID');
   if (!employee) {
     return res.status(401).json({ message: 'Invalid Credentials' });
   }
@@ -32,7 +32,8 @@ const signIn = async (req, res) => {
     token,
     employee,
     pricingPlan: pricingPlan || null,
-    companyEmployeeCount
+    companyEmployeeCount,
+
   });
 };
 

@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const {IssueTypes , TokkenStatus} = require('../utils/Enums')
+
 
 const TokenSchema = new mongoose.Schema({
     EmployeeID: {
@@ -9,7 +11,7 @@ const TokenSchema = new mongoose.Schema({
     IssueType: {
         type: String,
         required: true,
-        enum: ['Hardware', 'Software', 'Network', 'Other'], // Example issue types
+        enum: [IssueTypes.PERSONAL , IssueTypes.ATTENDANCE, IssueTypes.SOFTWARE , IssueTypes.HARDWARE , IssueTypes.NETWORK , IssueTypes.OTHER], // Example issue types
     },
     Description: {
         type: String,
@@ -19,17 +21,20 @@ const TokenSchema = new mongoose.Schema({
         type: Date,
         required: true,
     },
+    IssueDate: {
+        type: Date,
+        required: true,
+    },
     Status: {
         type: String,
         required: true,
-        enum: ['Open', 'In Progress', 'Resolved', 'Closed'], // Example status values
+        enum: [TokkenStatus.OPEN , TokkenStatus.INPROGRESS , TokkenStatus.RESOLVED , TokkenStatus.REJECTED , TokkenStatus.CLOSED], // Example status values
     },
     AssignedTo: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Employee',
-        required: true
     },
-    issue: {
+    Issue: {
         type: String,
         required: true,
     },
