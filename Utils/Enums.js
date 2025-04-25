@@ -58,21 +58,39 @@ const PricingPlans = Object.freeze({
 
 
 const IssueTypes = Object.freeze({
-    PERSONAL:'Personal' , 
-    ATTENDANCE:'Attendance' , 
-    HARDWARE:'Hardware', 
-    SOFTWARE:'Software', 
-    NETWORK:'Network', 
-    OTHER:'Other'
+    PERSONAL: 'Personal',
+    ATTENDANCE: 'Attendance',
+    HARDWARE: 'Hardware',
+    SOFTWARE: 'Software',
+    NETWORK: 'Network',
+    OTHER: 'Other'
 });
 
 
 const TokkenStatus = Object.freeze({
-    OPEN:'Open', 
-    INPROGRESS:'In Progress', 
-    RESOLVED:'Resolved', 
-    CLOSED:'Closed',
-    REJECTED:'Rejected'
+    OPEN: 'Open',
+    INPROGRESS: 'In Progress',
+    RESOLVED: 'Resolved',
+    CLOSED: 'Closed',
+    REJECTED: 'Rejected'
+})
+
+
+const Position = Object.freeze({
+    INTERN: "Intern",
+    JUNIOR: "Junior",
+    ASSOCIATE: "Associate",
+    SENIOR: "Senior",
+    LEAD: "Lead",
+    MANAGER: "Manager",
+    SENIOR_MANAGER: "Senior Manager",
+    DIRECTOR: "Director",
+    SENIOR_DIRECTOR: "Senior Director",
+    VP: "Vice President",
+    SVP: "Senior Vice President",
+    EVP: "Executive Vice President",
+    C_LEVEL: "C-Level Executive", // e.g., CFO, CTO, CHRO
+    HEAD: "Head of Department"
 })
 
 
@@ -89,6 +107,7 @@ module.exports = {
     NotificationTypes,
     PricingPlans,
     IssueTypes,
-    TokkenStatus
+    TokkenStatus,
+    Position
 };
 
