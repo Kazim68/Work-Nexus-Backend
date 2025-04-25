@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const { UserRoles, UserStatus, Departments, DocumentTypes } = require('../utils/Enums.js');
+const { UserRoles, UserStatus, Departments, DocumentTypes , Position } = require('../utils/Enums.js');
 
 const EmployeeSchema = new mongoose.Schema({
     userRole: {
@@ -59,9 +59,27 @@ const EmployeeSchema = new mongoose.Schema({
         enum: [UserStatus.ACTIVE, UserStatus.INACTIVE, UserStatus.SUSPENDED], 
         default: UserStatus.ACTIVE,
     },
-    positionID: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Position', // Reference to the Position table
+    position: {
+        type: String,
+        enum: [
+            Position.INTERN,
+            Position.JUNIOR,
+            Position.ASSOCIATE,
+            Position.SENIOR,
+            Position.LEAD,
+            Position.MANAGER,
+            Position.SENIOR_MANAGER,
+            Position.DIRECTOR,
+            Position.SENIOR_DIRECTOR,
+            Position.VP,
+            Position.SVP,
+            Position.EVP,
+            Position.C_LEVEL,
+            Position.HEAD
+        ]
+    },
+    salary: {
+        type: Number,
     },
     department: {
         type: String, 
