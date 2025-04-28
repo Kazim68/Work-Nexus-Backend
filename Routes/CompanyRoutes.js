@@ -6,7 +6,9 @@ const { UserRoles } = require('../utils/Enums.js');
 const {
   createCompany,
   uploadDocuments,
-  getDepartmentsWithPositions
+  getDepartmentsWithPositions,
+  getEmployeesByCompany,
+  updateWorkTimings
 } = require('../Controller/Company/Company');
 
 
@@ -21,6 +23,13 @@ router.post("/upload", auth, authorizeRoles(UserRoles.ADMIN), upload.fields([
   
 
 router.get('/departments-with-positions/:companyId', getDepartmentsWithPositions);
+
+router.get('/getEmployees/:companyId', auth ,  getEmployeesByCompany);
+
+
+router.put('/updateTime/:id', auth , updateWorkTimings);
+
+
 
 
 
