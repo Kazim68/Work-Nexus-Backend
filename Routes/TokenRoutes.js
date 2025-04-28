@@ -10,7 +10,7 @@ router.post('/create/:EmployeeID', auth ,  createToken);
 router.get('/getTokens/:EmployeeID', auth , getEmployeeTokens);
 
 
-router.get('/getAllTokens' ,auth , authorizeRoles(UserRoles.HR) , getAllTokens);
+router.get('/getAllTokens/:companyId' ,auth , authorizeRoles(UserRoles.HR) , getAllTokens);
 
 
 router.put('/resolve/missingClockOut/:tokenId' ,auth, authorizeRoles(UserRoles.HR) , handleClockOutMissingToken);
