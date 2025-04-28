@@ -78,18 +78,6 @@ exports.getMyLeaveRequests = async (req, res) => {
 };
 
 
-
-// Get all leave requests (for HR/Admin)
-exports.getAllLeaveRequests = async (req, res) => {
-    try {
-        const leaves = await LeaveRequest.find().populate('EmployeeID', 'firstName lastName email department');
-        res.status(200).json({ success: true, leaves: leaves });
-    } catch (error) {
-        res.status(500).json({ success: false, message: "Error fetching leave requests", error: error.message });
-    }
-};
-
-
 // Approve Leave (by HR)
 exports.approveLeave = async (req, res) => {
     try {
@@ -250,12 +238,17 @@ exports.employeeLeaveSummary = async (req, res) => {
       
             // Sick Leave Count
             if (
-              leave?.LeaveType &&
-              leave.LeaveType.toLowerCase() === LeaveTypes.SICK.toLowerCase() &&
-              isApproved
+                leave?.LeaveType &&
+                leave.LeaveType.toLowerCase() === LeaveTypes.SICK.toLowerCase() &&
+                isApproved
             ) {
-              sickCount++;
+                const startDate = new Date(leave.LeaveStartDate);
+                const endDate = new Date(leave.LeaveEndDate);
+                const diffTime = endDate.getTime() - startDate.getTime();
+                const days = Math.floor(diffTime / (1000 * 3600 * 24)) + 1; // +1 to include both start and end dates
+                sickCount += days;
             }
+              
             
             // Leaves Applied for Today
             if (leave.LeaveApplyDate && new Date(leave.LeaveApplyDate).toISOString().split("T")[0] === todayStr) {
@@ -281,5 +274,131 @@ exports.employeeLeaveSummary = async (req, res) => {
         res.status(200).json({ success: true, leaveSummary });
     } catch (error) {
         res.status(500).json({ success: false, message: "Error fetching leave summary", error: error.message });
+    }
+}
+
+
+// Get all pending leave requests (for HR/Admin) with employee details
+exports.allPendingLeaves = async (req, res) => {
+    try {
+        const pendingLeaves = await LeaveRequest.find({ LeaveStatus: LeaveStatus.PENDING })
+        .populate({
+          path: "EmployeeID", // assuming the LeaveRequest model has a field EmployeeID
+          select: "employeeCode name" // only bring these fields
+        })
+        .lean(); // make it plain JS object so we can easily add new fields
+  
+        // Add "days" field to each leave request
+        const pendingLeavesWithDays = pendingLeaves.map(leave => {
+            const start = leave.StartDate ? new Date(leave.StartDate) : null;
+            const end = leave.EndDate ? new Date(leave.EndDate) : null;
+
+            let diffDays = 1; // default to 1 day
+
+            if (start && end) {
+            const diffTime = end.getTime() - start.getTime();
+            diffDays = diffTime >= 0 ? Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1 : 1; // +1 to include both start and end date
+            } 
+    
+            return {
+            ...leave,
+            days: diffDays
+            };
+        });
+  
+      res.status(200).json({ success: true, pendingLeaves: pendingLeavesWithDays });
+    } catch (error) {
+      res.status(500).json({ success: false, message: "Error fetching pending leaves", error: error.message });
+    }
+  };
+  
+
+  exports.getLeaveRequestsSummaryForHR = async (req, res) => {
+    try {
+        const employeeId = req.user.userId;
+        const leaves = await LeaveRequest.find({  });
+
+        const today = new Date();
+        const currentMonth = today.getMonth();
+        const currentYear = today.getFullYear();
+
+        let leavesAppliedTodayCount = 0;
+        let approvedLeavesThisMonthCount = 0;
+        let pendingLeavesCount = 0;
+
+        leaves.forEach(leave => {
+            const startDate = new Date(leave.LeaveStartDate);
+
+            // Applied today (ignoring status)
+            if (
+                startDate.getDate() === today.getDate() &&
+                startDate.getMonth() === today.getMonth() &&
+                startDate.getFullYear() === today.getFullYear()
+            ) {
+                leavesAppliedTodayCount++;
+            }
+
+            // Approved leaves this month
+            if (
+                leave.LeaveStatus === LeaveStatus.APPROVED &&
+                startDate.getMonth() === currentMonth &&
+                startDate.getFullYear() === currentYear
+            ) {
+                approvedLeavesThisMonthCount++;
+            }
+
+            // Pending leaves (regardless of date)
+            if (leave.LeaveStatus === LeaveStatus.PENDING) {
+                pendingLeavesCount++;
+            }
+        });
+
+        res.status(200).json({
+            success: true,
+            leavesAppliedTodayCount,
+            approvedLeavesThisMonthCount,
+            pendingLeavesCount,
+        });
+    }
+    catch (error) {
+        res.status(500).json({ success: false, message: "Error fetching leave statistics", error: error.message });
+    }
+}
+
+
+exports.getAllLeavesOfMonth = async (req, res) => { 
+    try {
+        const leaveRequests = await LeaveRequest.find({
+            LeaveStatus: { $in: [LeaveStatus.APPROVED, LeaveStatus.REJECTED] }
+        })
+            .populate('EmployeeID', 'name employeeCode') // Only populate the Name field from Employee
+            .sort({ LeaveApplyDate: -1 });
+        
+        const formattedLeaves = leaveRequests.map(leave => {
+            const startDate = new Date(leave.LeaveStartDate);
+            const endDate = new Date(leave.LeaveEndDate);
+
+            // Calculate no of days (including both start and end dates)
+            const timeDiff = endDate.getTime() - startDate.getTime();
+            const noOfDays = Math.floor(timeDiff / (1000 * 3600 * 24)) + 1;
+
+            return {
+                fromDate: leave.LeaveStartDate,
+                toDate: leave.LeaveEndDate,
+                noOfDays: noOfDays,
+                leaveType: leave.LeaveType,
+                reason: leave.LeaveReason,
+                status: leave.LeaveStatus,
+                employeeName: leave.EmployeeID?.name || "Unknown",
+                employeeCode: leave.EmployeeID?.employeeCode || "N/A",
+            };
+        });
+
+        res.status(200).json({
+            success: true,
+            leaves: formattedLeaves
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Error fetching leaves", error: error.message });
     }
 }

@@ -6,6 +6,8 @@ const cors = require('cors');
 const connectDb = require('./dB/connect.js');
 const Logger = require('./middleware/Logger.js');
 const rawExpress = require('./Utils/RawExpress.js')
+const http = require('http');
+const { setupSocket } = require('./utils/Socket.js');
 
 // Routes
 const AuthRoutes = require("./Routes/AuthRoutes.js");
@@ -42,6 +44,9 @@ app.use('/api/token', require('./Routes/TokenRoutes.js'));
 
 
 
+// socket.io setup
+const server = http.createServer(app);
+setupSocket(server);
 
 
 // Server
@@ -51,7 +56,7 @@ const start = async () => {
     try {
         await connectDb(process.env.MONGO_URL);
         console.log('Database connected');
-        app.listen(port, () => {
+        server.listen(port, () => {
             console.log(`Server is running on port ${port}`);
         });
     } catch (err) {
