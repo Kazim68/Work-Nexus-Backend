@@ -38,6 +38,9 @@ const createCompany = async (req, res) => {
 };
 
 
+
+
+
 // Upload Documents
 const uploadDocuments = (req, res) => {
     const documents = req.files['documents']?.map(file => file.path) || [];
@@ -88,8 +91,61 @@ const getDepartmentsWithPositions = async (req, res) => {
   }
 };
 
+
+const updateWorkTimings = async (req, res) => {
+  const { id } = req.params;
+  const { workTimings } = req.body;
+
+  if (!workTimings) {
+    return res.status(400).json({ message: "Both clockIn and clockOut times are required." });
+  }
+
+  try {
+    const updatedCompany = await Company.findById(id);
+
+    if (!updatedCompany) {
+      return res.status(404).json({ message: "Company record not found." });
+    }
+
+    updatedCompany.workTimings = workTimings;
+
+    await updatedCompany.save();
+
+    res.status(200).json({
+      message: "Work timings updated successfully.",
+      data: updatedCompany,
+    });
+  } catch (error) {
+    console.error("Error updating work timings:", error);
+    res.status(500).json({ message: "Server error updating work timings." });
+  }
+};
+
+const getEmployeesByCompany = async (req, res) => {
+  try {
+    const { companyId } = req.params;
+
+    if (!companyId) {
+      return res.status(400).json({ message: "Company ID is required" });
+    }
+
+    const employees = await Employee.find({ companyID: companyId });
+
+    if (employees.length === 0) {
+      return res.status(404).json({ message: "No employees found for this company" });
+    }
+
+    res.status(200).json({ employees });
+  } catch (error) {
+    console.error("Error fetching employees:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
 module.exports = {
   createCompany,
   uploadDocuments,
-  getDepartmentsWithPositions
+  getDepartmentsWithPositions,
+  getEmployeesByCompany,
+  updateWorkTimings
 };

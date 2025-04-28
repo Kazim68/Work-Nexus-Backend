@@ -71,15 +71,29 @@ const getEmployeeTokens = async (req, res) => {
 
 
 const getAllTokens = async (req, res) => {
+    const { companyId } = req.params; // /tokens/:companyId
+
 
     try {
-        const tokens = await Token.find().populate('EmployeeID' , 'firstName lastName');
-        res.status(200).json({tokens});
+        const tokens = await Token.find()
+            .populate('EmployeeID', 'firstName lastName companyID employeeCode');
+
+        const filteredTokens = tokens.filter(token => 
+            token.EmployeeID && 
+            token.EmployeeID.companyID && 
+            token.EmployeeID.companyID.equals(companyId)
+        );
+
+
+
+        res.status(200).json({ tokens: filteredTokens });
     } catch (err) {
         console.error('Error fetching employee tokens:', err);
         res.status(500).json({ error: 'Server error' });
     }
 };
+
+
 
 
 module.exports = {

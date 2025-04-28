@@ -1,6 +1,6 @@
 const Attendance = require("../../models/Attendance");
 const Employee = require("../../models/Employee");
-
+const moment = require('moment');
 
 // Clock In Controller
 const clockIn = async (req, res) => {
@@ -219,9 +219,63 @@ const getAttendanceSummary = async (req, res) => {
 };
 
 
+function getWeekNumber(date) {
+    const startOfMonth = moment(date).startOf('month');
+    return Math.ceil(moment(date).diff(startOfMonth, 'days') / 7) + 1;
+}
+
+
+
+const getweeklyAttendance =  async (req, res) => {
+    try {
+        const { employeeId } = req.params;
+
+        const attendances = await Attendance.find({ EmployeeID: employeeId });
+
+        const weeks = {};
+
+        attendances.forEach(record => {
+            if (record.ClockInTime && record.ClockOutTime) {
+                const weekNum = getWeekNumber(record.ClockInTime);
+
+                if (!weeks[weekNum]) {
+                    weeks[weekNum] = {
+                        totalWorkedSeconds: 0,
+                        daysCount: 0,
+                    };
+                }
+
+                const duration = (new Date(record.ClockOutTime) - new Date(record.ClockInTime)) / 1000; // in seconds
+                weeks[weekNum].totalWorkedSeconds += duration;
+                weeks[weekNum].daysCount += 1;
+            }
+        });
+
+        const summary = [];
+        const scheduledSecondsPerWeek = 40 * 3600; // 40 hours
+
+        for (let week = 1; week <= 5; week++) {
+            const workedSeconds = weeks[week]?.totalWorkedSeconds || 0;
+            const averageSeconds = weeks[week]?.daysCount ? workedSeconds / weeks[week].daysCount : 0;
+
+            summary.push({
+                week: `Week ${week}`,
+                scheduledHours: new Date(scheduledSecondsPerWeek * 1000).toISOString().substr(11, 8),
+                workedHours: new Date(workedSeconds * 1000).toISOString().substr(11, 8),
+                averageHours: new Date(averageSeconds * 1000).toISOString().substr(11, 8),
+            });
+        }
+
+        res.json({data : summary});
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
 
 
 
 
 
-module.exports = { clockIn, clockOut, getAttendanceSummary }
+module.exports = { clockIn, clockOut, getAttendanceSummary , getweeklyAttendance }
