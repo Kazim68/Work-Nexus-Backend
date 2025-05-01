@@ -41,6 +41,7 @@ app.use('/api/notifications', require('./Routes/NotificationsRouter.js'));
 app.use('/api/company', require('./Routes/CompanyRoutes.js'));
 app.use('/api/attendance', require('./Routes/Attendance.js'));
 app.use('/api/token', require('./Routes/TokenRoutes.js'));
+app.use('/api/payroll', require('./Routes/PayrollRoutes.js'));
 
 
 
