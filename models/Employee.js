@@ -80,6 +80,8 @@ const EmployeeSchema = new mongoose.Schema({
     },
     salary: {
         type: Number,
+        default: 80000,
+        required: true
     },
     department: {
         type: String, 
@@ -105,6 +107,14 @@ const EmployeeSchema = new mongoose.Schema({
     isVerified:{
         type:Boolean,
         default:false
+    },
+    PF_FundPerMonth: {
+        type: Number,
+        default: 0
+    },
+    PR_FundTotal: {
+        type: Number,
+        default: 0
     },
     LeaveInfo: {
         AnnualLeaves: {

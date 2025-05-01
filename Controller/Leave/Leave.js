@@ -284,7 +284,7 @@ exports.allPendingLeaves = async (req, res) => {
         const pendingLeaves = await LeaveRequest.find({ LeaveStatus: LeaveStatus.PENDING })
         .populate({
           path: "EmployeeID", // assuming the LeaveRequest model has a field EmployeeID
-          select: "employeeCode name" // only bring these fields
+          select: "employeeCode firstName department" // only bring these fields
         })
         .lean(); // make it plain JS object so we can easily add new fields
   
@@ -371,7 +371,7 @@ exports.getAllLeavesOfMonth = async (req, res) => {
         const leaveRequests = await LeaveRequest.find({
             LeaveStatus: { $in: [LeaveStatus.APPROVED, LeaveStatus.REJECTED] }
         })
-            .populate('EmployeeID', 'name employeeCode') // Only populate the Name field from Employee
+            .populate('EmployeeID', 'firstName employeeCode') // Only populate the Name field from Employee
             .sort({ LeaveApplyDate: -1 });
         
         const formattedLeaves = leaveRequests.map(leave => {
@@ -389,7 +389,7 @@ exports.getAllLeavesOfMonth = async (req, res) => {
                 leaveType: leave.LeaveType,
                 reason: leave.LeaveReason,
                 status: leave.LeaveStatus,
-                employeeName: leave.EmployeeID?.name || "Unknown",
+                employeeName: leave.EmployeeID?.firstName || "Unknown",
                 employeeCode: leave.EmployeeID?.employeeCode || "N/A",
             };
         });
