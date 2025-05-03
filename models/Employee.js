@@ -61,22 +61,6 @@ const EmployeeSchema = new mongoose.Schema({
     },
     position: {
         type: String,
-        enum: [
-            Position.INTERN,
-            Position.JUNIOR,
-            Position.ASSOCIATE,
-            Position.SENIOR,
-            Position.LEAD,
-            Position.MANAGER,
-            Position.SENIOR_MANAGER,
-            Position.DIRECTOR,
-            Position.SENIOR_DIRECTOR,
-            Position.VP,
-            Position.SVP,
-            Position.EVP,
-            Position.C_LEVEL,
-            Position.HEAD
-        ]
     },
     salary: {
         type: Number,

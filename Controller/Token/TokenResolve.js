@@ -1,7 +1,8 @@
 const Token = require("../../models/Token");
 const Attendance = require("../../models/Attendance");
-const { TokkenStatus } = require("../../utils/Enums");
+const { TokkenStatus, NotificationTypes } = require("../../utils/Enums");
 const Employee = require("../../models/Employee");
+const { sendNotification } = require("../Notifications/NotificationController");
 
 const handleClockOutMissingToken = async (req, res) => {
     try {
@@ -44,6 +45,13 @@ const handleClockOutMissingToken = async (req, res) => {
         attendance.ClockOutTime = endDateTime;
         issue.Status = TokkenStatus.RESOLVED;
 
+        const notification = await sendNotification(
+            [issue.EmployeeID],
+            "Ticket request Resolved",
+            `Your ticket request for ${issue.Issue}\n Issue Type ${issue.IssueType}\n Raised on ${issue.RaisedDate} was resolved`,
+            NotificationTypes.TICKET_REQUEST
+        );
+
         await issue.save();
         await attendance.save();
 
@@ -70,6 +78,13 @@ const handleTokenReject = async (req, res) => {
 
         issue.save()
 
+        const notification = await sendNotification(
+            [issue.EmployeeID],
+            "Ticket request Rejected",
+            `Your ticket request for ${issue.Issue}\n Issue Type ${issue.IssueType}\n Raised on ${issue.RaisedDate} was rejected`,
+            NotificationTypes.TICKET_REQUEST
+        );
+
         res.status(200).json({ message: "Token rejected sucessfully" });
     } catch (error) {
         console.error("Error updating issue:", error);
@@ -92,6 +107,13 @@ const handleTokenResolve = async (req, res) => {
 
         issue.save()
 
+        const notification = await sendNotification(
+            [issue.EmployeeID],
+            "Ticket request Resolved",
+            `Your ticket request for ${issue.Issue}\n Issue Type ${issue.IssueType}\n Raised on ${issue.RaisedDate} was resolved`,
+            NotificationTypes.TICKET_REQUEST
+        );
+
         res.status(200).json({ message: "Token rejected sucessfully" });
     } catch (error) {
         console.error("Error updating issue:", error);
@@ -102,7 +124,7 @@ const handleTokenResolve = async (req, res) => {
 
 const assignTokenToManager = async (req, res) => {
     const { tokenId } = req.params;
-    const {position, department} = req.body
+    const { position, department } = req.body
 
     try {
         // 1. Find the token by ID
@@ -129,4 +151,4 @@ const assignTokenToManager = async (req, res) => {
     }
 };
 
-module.exports = { handleClockOutMissingToken, handleTokenReject , handleTokenResolve };
+module.exports = { handleClockOutMissingToken, handleTokenReject, handleTokenResolve };

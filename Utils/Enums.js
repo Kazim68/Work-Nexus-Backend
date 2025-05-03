@@ -47,6 +47,8 @@ const NotificationTypes = Object.freeze({
     LEAVE_APPROVED: 'leave_approved',
     LEAVE_REJECTED: 'leave_rejected',
     DOCUMENT_UPLOADED: 'document_uploaded',
+    TICKET_REQUEST: 'ticket_request',
+
 });
 
 

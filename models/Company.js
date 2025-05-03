@@ -39,6 +39,10 @@ const CompanySchema = new mongoose.Schema({
         type: [String],
         default: []
     },
+    workingDays: {
+        type: String,
+        default: '5'
+    },
     companyStatus: {
         type: Boolean,
         required: true

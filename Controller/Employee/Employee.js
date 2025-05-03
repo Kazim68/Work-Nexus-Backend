@@ -84,6 +84,8 @@ const bulkUpload = async (req, res) => {
             user_role: row.Role,
             employeeCode: row.Employee_Code,
             department: row.Department,
+            position:row.Designation,
+            salary:row.Salary,
 
             companyID: companyId,
             isVerified: true,
