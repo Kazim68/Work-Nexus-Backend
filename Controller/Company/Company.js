@@ -15,6 +15,7 @@ const createCompany = async (req, res) => {
       contactPhone: req.body.contactPhone,
       companyStatus: req.body.companyStatus,
       pricingPlan: req.body.pricingPlan,
+      workingDays: req.body.workingDays,
       documents: req.body.documents || [],
       workTimings: req.body.workTimings || [],
       companyLogo: req.body.companyLogo || null, 
