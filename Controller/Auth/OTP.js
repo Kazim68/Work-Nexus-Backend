@@ -1,8 +1,8 @@
 const Employee = require('../../models/Employee')
 const bcrypt = require("bcryptjs");
 const OTP = require('../../models/OTP');
-const { sendEmail } = require('../../Utils/MailSetup')
-const generateOtp = require('../../Utils/OTPGenerator')
+const { sendEmail } = require('../../utils/MailSetup')
+const generateOtp = require('../../utils/OTPGenerator')
 
 
 

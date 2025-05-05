@@ -1,6 +1,6 @@
 const express = require('express')
 const { getAllEmployees, createEmployee , increaseLeaveBalance , bulkUpload, changePassword } = require('../Controller/Employee/Employee.js') 
-const upload = require('../Utils/Multer.js')
+const upload = require('../utils/Multer.js')
 const { authorizeRoles, auth } = require('../middleware/authMiddleware.js')
 const { UserRoles } = require('../utils/Enums.js');
 

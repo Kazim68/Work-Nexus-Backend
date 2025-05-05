@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const {auth, authorizeRoles} = require('../middleware/authMiddleware');
-const upload = require('../Utils/Multer');
+const upload = require('../utils/Multer');
 const { UserRoles } = require('../utils/Enums.js');
 const {
   createCompany,

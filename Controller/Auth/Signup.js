@@ -1,5 +1,5 @@
 const Employee = require('../../models/Employee')
-const customError = require('../../Utils/Error')
+const customError = require('../../utils/Error')
 const bcrypt = require("bcryptjs");
 
 

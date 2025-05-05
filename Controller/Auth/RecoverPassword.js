@@ -1,7 +1,7 @@
 const express = require('express');
 const crypto = require('crypto');
 const Employee = require('../../models/Employee'); // Assuming you have a User model
-const { sendEmail } = require('../../Utils/MailSetup');
+const { sendEmail } = require('../../utils/MailSetup');
 const RecoveryTokens = require('../../models/RecoveryTokens');
 const bcrypt = require("bcryptjs");
 
