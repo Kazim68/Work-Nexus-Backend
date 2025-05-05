@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const { UserRoles, UserStatus, Departments, DocumentTypes } = require('../utils/Enums.js');
+const { UserRoles, UserStatus, Departments, DocumentTypes , Position } = require('../utils/Enums.js');
 
 const EmployeeSchema = new mongoose.Schema({
     userRole: {
@@ -59,13 +59,16 @@ const EmployeeSchema = new mongoose.Schema({
         enum: [UserStatus.ACTIVE, UserStatus.INACTIVE, UserStatus.SUSPENDED], 
         default: UserStatus.ACTIVE,
     },
-    positionID: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Position', // Reference to the Position table
+    position: {
+        type: String,
+    },
+    salary: {
+        type: Number,
+        default: 80000,
+        required: true
     },
     department: {
-        type: String,
-        enum: [Departments.HR, Departments.IT], 
+        type: String, 
     },
     companyID: {
         type: mongoose.Schema.Types.ObjectId,
@@ -89,16 +92,33 @@ const EmployeeSchema = new mongoose.Schema({
         type:Boolean,
         default:false
     },
+    PF_FundPerMonth: {
+        type: Number,
+        default: 0
+    },
+    PR_FundTotal: {
+        type: Number,
+        default: 0
+    },
     LeaveInfo: {
-        UsedLeaves: {
+        AnnualLeaves: {
             type: Number,
             required: true,
-            default: 0
+            default: 30
         },
         RemainingLeaves: {
             type: Number,
             required: true,
             default: 30
+        },
+        UnpaidLeaves: {
+            type: Number,
+            required: true,
+            default: 0
+        },
+        LastResetDate: {
+            type: Date,
+            default: Date.now
         }
     },
 

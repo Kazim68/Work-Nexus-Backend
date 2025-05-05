@@ -38,7 +38,6 @@ const LeaveStatus = Object.freeze({
 const LeaveTypes = Object.freeze({
     SICK: 'sick',
     CASUAL: 'casual',
-    EARNED: 'earned',
     UNPAID: 'unpaid',
 });
 
@@ -48,7 +47,56 @@ const NotificationTypes = Object.freeze({
     LEAVE_APPROVED: 'leave_approved',
     LEAVE_REJECTED: 'leave_rejected',
     DOCUMENT_UPLOADED: 'document_uploaded',
+    TICKET_REQUEST: 'ticket_request',
+
 });
+
+
+const PricingPlans = Object.freeze({
+    BASIC: 'basic',
+    STANDARD: 'standard',
+    PREMIUM: 'premium',
+});
+
+
+const IssueTypes = Object.freeze({
+    PERSONAL: 'Personal',
+    ATTENDANCE: 'Attendance',
+    HARDWARE: 'Hardware',
+    SOFTWARE: 'Software',
+    NETWORK: 'Network',
+    OTHER: 'Other'
+});
+
+
+const TokkenStatus = Object.freeze({
+    OPEN: 'Open',
+    INPROGRESS: 'In Progress',
+    RESOLVED: 'Resolved',
+    CLOSED: 'Closed',
+    REJECTED: 'Rejected'
+})
+
+
+const Position = Object.freeze({
+    INTERN: "Intern",
+    JUNIOR: "Junior",
+    ASSOCIATE: "Associate",
+    SENIOR: "Senior",
+    LEAD: "Lead",
+    MANAGER: "Manager",
+    SENIOR_MANAGER: "Senior Manager",
+    DIRECTOR: "Director",
+    SENIOR_DIRECTOR: "Senior Director",
+    VP: "Vice President",
+    SVP: "Senior Vice President",
+    EVP: "Executive Vice President",
+    C_LEVEL: "C-Level Executive", // e.g., CFO, CTO, CHRO
+    HEAD: "Head of Department"
+})
+
+
+
 
 // Export all enums
 module.exports = {
@@ -59,5 +107,9 @@ module.exports = {
     DocumentTypes,
     LeaveTypes,
     NotificationTypes,
+    PricingPlans,
+    IssueTypes,
+    TokkenStatus,
+    Position
 };
 

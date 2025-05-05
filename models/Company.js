@@ -1,24 +1,24 @@
 const mongoose = require('mongoose');
 
 const CompanySchema = new mongoose.Schema({
-    CompanyName: {
+    companyName: {
         type: String,
         required: true
     },
-    CompanyType: {
+    companyType: {
         type: String,
-        enum: ['StartUp', 'Enterprise', 'Non Profit'], // Example enum values
+        enum: ['StartUp', 'Enterprise', 'Non Profit'],
         required: true
     },
-    EmployeeCount: {
+    employeeCount: {
         type: String,
         required: true,
     },
-    Address: {
+    address: {
         type: String,
         required: true
     },
-    ContactEmail: {
+    contactEmail: {
         type: String,
         required: [true, 'Please provide email'],
         match: [
@@ -27,30 +27,35 @@ const CompanySchema = new mongoose.Schema({
         ],
         unique: true,
     },
-    ContactPhone: {
+    contactPhone: {
         type: String,
         required: true
     },
-    Documents: {
-        type: [String], // Array of strings
+    documents: {
+        type: [String],
         default: []
     },
-    WorkTimings: {
-        type: [String], // Array of strings
+    workTimings: {
+        type: [String],
         default: []
     },
-    CompanyStatus: {
+    workingDays: {
+        type: String,
+        default: '5'
+    },
+    companyStatus: {
         type: Boolean,
         required: true
     },
-    CompanyLogo: {
+    companyLogo: {
         type: String,
         required: false
     },
-    PricingPlan: {
+    pricingPlan: {
         type: String,
         required: true
-    }
+    },
 });
+
 
 module.exports = mongoose.model('Company', CompanySchema);

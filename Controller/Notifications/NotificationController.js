@@ -1,4 +1,5 @@
 const Notification = require('../../models/Notification.js');
+const { getIO } = require('../../utils/Socket.js');
 
 exports.getNotifications = async (req, res) => {
     try {
@@ -114,6 +115,18 @@ exports.sendNotification = async (recipients, title, message, type) => {
         type,
     });
     await notification.save();
+
+    // After saving, emit socket event
+    const io = getIO();
+    recipients.forEach(employeeId => {
+        io.to(employeeId.toString()).emit('new_notification', {
+            id: notification._id,
+            title,
+            message,
+            type,
+            createdAt: notification.createdAt
+        });
+    });
 
     return notification;
 }

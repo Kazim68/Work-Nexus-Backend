@@ -6,6 +6,8 @@ const cors = require('cors');
 const connectDb = require('./dB/connect.js');
 const Logger = require('./middleware/Logger.js');
 const rawExpress = require('./Utils/RawExpress.js')
+const http = require('http');
+const { setupSocket } = require('./utils/Socket.js');
 
 // Routes
 const AuthRoutes = require("./Routes/AuthRoutes.js");
@@ -36,6 +38,17 @@ app.use('/api/leave', require('./Routes/LeaveRoutes.js'));
 app.use('/api/employee', require('./Routes/EmployeeRoutes.js'));
 app.use('/api/notifications', require('./Routes/NotificationsRouter.js'));
 
+app.use('/api/company', require('./Routes/CompanyRoutes.js'));
+app.use('/api/attendance', require('./Routes/Attendance.js'));
+app.use('/api/token', require('./Routes/TokenRoutes.js'));
+app.use('/api/payroll', require('./Routes/PayrollRoutes.js'));
+
+
+
+// socket.io setup
+const server = http.createServer(app);
+setupSocket(server);
+
 
 // Server
 const port = process.env.PORT || 3000;
@@ -44,7 +57,7 @@ const start = async () => {
     try {
         await connectDb(process.env.MONGO_URL);
         console.log('Database connected');
-        app.listen(port, () => {
+        server.listen(port, () => {
             console.log(`Server is running on port ${port}`);
         });
     } catch (err) {

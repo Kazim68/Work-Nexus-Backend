@@ -29,6 +29,10 @@ const LeaveRequestSchema = new mongoose.Schema({
         required: true,
         enum: [LeaveStatus.PENDING, LeaveStatus.APPROVED, LeaveStatus.REJECTED],
         default: LeaveStatus.PENDING
+    },
+    LeaveApplyDate: {
+        type: Date,
+        default: Date.now
     }
 });
 
