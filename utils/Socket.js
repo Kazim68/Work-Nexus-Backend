@@ -6,7 +6,8 @@ let io;
 function setupSocket(server) {
     io = socketIO(server, {
         cors: {
-            origin: 'http://localhost:5173', // Allow frontend origin
+            //origin: 'http://localhost:5173', // Allow frontend origin
+            origin: 'https://worknexus-indol.vercel.app',
             methods: ['GET', 'POST'],
             credentials: true,
             allowedHeaders: ['Content-Type', 'Authorization'],
