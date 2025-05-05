@@ -19,7 +19,11 @@ const PaymentRoutes = require("./Routes/PaymentRoutes.js");
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: "https://work-nexus-backend.vercel.app", // your frontend URL
+  credentials: true // allow cookies and auth headers
+}));
+
 
 rawExpress(app)
 
