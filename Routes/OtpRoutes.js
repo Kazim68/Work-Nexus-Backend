@@ -1,5 +1,5 @@
 const express = require('express')
-const { generateAndSendOtp, verifyOtp } = require("../controller/Auth/OTP");
+const { generateAndSendOtp, verifyOtp } = require("../Controller/Auth/OTP");
 
 const router = express.Router();
 
