@@ -11,7 +11,7 @@ const { setupSocket } = require('./utils/Socket.js');
 
 // Routes
 const AuthRoutes = require("./Routes/AuthRoutes.js");
-const OtpRoutes = require("./Routes/otpRoutes.js");
+const OtpRoutes = require("./Routes/OtpRoutes.js");
 const ResetPasswordRoutes = require("./Routes/ResetPasswordRoutes.js");
 const PaymentRoutes = require("./Routes/PaymentRoutes.js");
 
