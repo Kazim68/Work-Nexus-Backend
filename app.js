@@ -25,7 +25,7 @@ app.use(cors({
 }));
 
 
-rawExpress(app)
+
 
 
 app.use(express.json());
@@ -47,6 +47,7 @@ app.use('/api/attendance', require('./Routes/Attendance.js'));
 app.use('/api/token', require('./Routes/TokenRoutes.js'));
 app.use('/api/payroll', require('./Routes/PayrollRoutes.js'));
 
+rawExpress(app)
 
 
 // socket.io setup
