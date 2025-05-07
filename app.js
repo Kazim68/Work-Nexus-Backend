@@ -33,7 +33,6 @@ app.use((req, res, next) => {
     express.json()(req, res, next);
 });
 
-app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(Logger); // Make sure logger runs before routes
