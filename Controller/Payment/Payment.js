@@ -26,7 +26,7 @@ const checkoutSession = async (req, res) => {
           quantity: 1,
         },
       ],
-      success_url: 'http://localhost:5173/orgInfo',
+      success_url: 'https://worknexus-indol.vercel.app/orgInfo',
       cancel_url: 'http://localhost:3000/payment-cancel',
       metadata: {
         employeeId,
