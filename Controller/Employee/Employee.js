@@ -94,7 +94,7 @@ const bulkUpload = async (req, res) => {
         });
 
         await employee.save();
-        credentials.push({ email: row.email, password });
+        credentials.push({ email: row.Email, password });
     }
 
     const baseDir = path.join(__dirname, '..', '..', 'Uploads', 'Company', 'downloads');
