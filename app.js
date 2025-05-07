@@ -20,13 +20,18 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: "https://worknexus-indol.vercel.app", // your frontend URL
-  credentials: true // allow cookies and auth headers
+    origin: "https://worknexus-indol.vercel.app", // your frontend URL
+    credentials: true // allow cookies and auth headers
 }));
 
 
 
-
+app.use((req, res, next) => {
+    if (req.originalUrl === "/api/payment/webhook") {
+        return next();
+    }
+    express.json()(req, res, next);
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
