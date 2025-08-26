@@ -20,7 +20,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-    origin: "https://main.d3fqahbvsbv3om.amplifyapp.com",  //"https://worknexus-indol.vercel.app", // your frontend URL
+    origin: "https://worknexus-indol.vercel.app", //"https://main.d3fqahbvsbv3om.amplifyapp.com" // your frontend URL
     credentials: true // allow cookies and auth headers
 }));
 
