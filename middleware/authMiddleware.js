@@ -5,7 +5,7 @@ const auth = async (req, res, next) => {
 
   
   if (!authHeader || !authHeader.startsWith('Bearer')) {
-    res.status(403).json({ message: 'Access denied' });
+    return res.status(403).json({ message: 'Access denied' });
   }
   const token = authHeader.split(' ')[1];
 

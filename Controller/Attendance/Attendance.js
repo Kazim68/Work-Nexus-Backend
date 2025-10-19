@@ -4,38 +4,46 @@ const moment = require('moment');
 
 // Clock In Controller
 const clockIn = async (req, res) => {
+    console.log("clockIn function called");
     const { employeeId } = req.params;
     const { clockInTime } = req.body;
 
+    console.log("Validating clockInTime");
     if (!clockInTime || isNaN(new Date(clockInTime).getTime())) {
         return res.status(400).json({ success: false, message: 'ClockInTime must be a valid Date' });
     }
 
 
     try {
+        console.log("Finding employee:", employeeId);
         const employee = await Employee.findById(employeeId);
         if (!employee) {
+            console.log("Employee not found");
             return res.status(404).json({ success: false, message: 'Employee not found' });
         }
 
         const today = new Date();
         today.setHours(0, 0, 0, 0); // Normalize to midnight
 
+        console.log("Checking for existing clock-in today");
         const existingAttendance = await Attendance.findOne({
             EmployeeID: employeeId,
             ClockInTime: { $gte: today }
         });
 
         if (existingAttendance) {
+            console.log("Employee has already clocked in today");
             return res.status(400).json({ success: false, message: 'You have already clocked in today' });
         }
 
+        console.log("Creating new attendance record");
         const newAttendance = new Attendance({
             EmployeeID: employeeId,
             ClockInTime: clockInTime
         });
 
         await newAttendance.save();
+        console.log("Clock-in recorded successfully");
         res.status(201).json({ success: true, message: 'Clock-in recorded', data: newAttendance });
     } catch (error) {
         console.error('Clock-in error:', error);
@@ -45,42 +53,52 @@ const clockIn = async (req, res) => {
 
 // Clock Out Controller
 const clockOut = async (req, res) => {
+    console.log("clockOut function called");
     const { employeeId } = req.params;
     const { clockOutTime } = req.body;
 
+    console.log("Validating clockOutTime");
     if (!clockOutTime || isNaN(new Date(clockOutTime).getTime())) {
         return res.status(400).json({ success: false, message: 'clockOutTime must be a valid Date' });
     }
 
     try {
+        console.log("Finding employee:", employeeId);
         const employee = await Employee.findById(employeeId);
         if (!employee) {
+            console.log("Employee not found");
             return res.status(404).json({ success: false, message: 'Employee not found' });
         }
 
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
+        console.log("Finding clock-in record for today");
         const attendance = await Attendance.findOne({
             EmployeeID: employeeId,
             ClockInTime: { $gte: today }
         });
 
         if (!attendance) {
+            console.log("No clock-in record found for today");
             return res.status(404).json({ success: false, message: 'No clock-in record found for today' });
         }
 
         if (attendance.ClockOutTime) {
+            console.log("Employee has already clocked out today");
             return res.status(400).json({ success: false, message: 'You have already clocked out today' });
         }
 
         if (clockOutTime <= attendance.ClockInTime) {
+            console.log("Clock-out time must be after clock-in time");
             return res.status(400).json({ success: false, message: 'ClockOutTime must be after ClockInTime' });
         }
 
+        console.log("Updating clock-out time");
         attendance.ClockOutTime = clockOutTime;
         await attendance.save();
 
+        console.log("Clock-out recorded successfully");
         res.status(200).json({ success: true, message: 'Clock-out recorded', data: attendance });
     } catch (error) {
         console.error('Clock-out error:', error);
@@ -97,6 +115,7 @@ function msToDecimalHours(ms) {
 
 
 const getAttendanceSummary = async (req, res) => {
+    console.log("getAttendanceSummary function called");
     const { employeeId } = req.params;
 
     try {
@@ -105,13 +124,13 @@ const getAttendanceSummary = async (req, res) => {
         const startOfPreviousMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
         const endOfPreviousMonth = new Date(now.getFullYear(), now.getMonth(), 0);
 
-        // Fetch all current month records (including ones with null ClockOutTime)
+        console.log("Fetching current month attendance records");
         const currentMonthRecords = await Attendance.find({
             EmployeeID: employeeId,
             ClockInTime: { $gte: startOfCurrentMonth }
         });
 
-        // Fetch all previous month records (including ones with null ClockOutTime)
+        console.log("Fetching previous month attendance records");
         const previousMonthRecords = await Attendance.find({
             EmployeeID: employeeId,
             ClockInTime: { $gte: startOfPreviousMonth, $lte: endOfPreviousMonth }
@@ -121,6 +140,7 @@ const getAttendanceSummary = async (req, res) => {
         const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
 
+        console.log("Fetching today's attendance record");
         const todayRecord = await Attendance.findOne({
             EmployeeID: employeeId,
             ClockInTime: { $gte: todayStart, $lt: todayEnd }
@@ -136,6 +156,7 @@ const getAttendanceSummary = async (req, res) => {
         };
 
         const processRecords = (records) => {
+            console.log("Processing attendance records");
             const durations = {};
             const details = {};
             const nullClockOuts = {};
@@ -178,12 +199,14 @@ const getAttendanceSummary = async (req, res) => {
         };
 
         // Process records
+        console.log("Processing current month records");
         const {
             durations: currentMonth,
             details: currentMonthDetails,
             nullClockOuts: nullClockOutsCurrentMonth
         } = processRecords(currentMonthRecords);
 
+        console.log("Processing previous month records");
         const {
             durations: previousMonth,
             details: previousMonthDetails,
@@ -200,6 +223,7 @@ const getAttendanceSummary = async (req, res) => {
         }
 
         // Send response
+        console.log("Sending attendance summary response");
         return res.json({
             currentMonth,
             currentMonthDetails,
@@ -227,13 +251,16 @@ function getWeekNumber(date) {
 
 
 const getweeklyAttendance =  async (req, res) => {
+    console.log("getweeklyAttendance function called");
     try {
         const { employeeId } = req.params;
 
+        console.log("Fetching attendance for employee:", employeeId);
         const attendances = await Attendance.find({ EmployeeID: employeeId });
 
         const weeks = {};
 
+        console.log("Calculating weekly attendance");
         attendances.forEach(record => {
             if (record.ClockInTime && record.ClockOutTime) {
                 const weekNum = getWeekNumber(record.ClockInTime);
@@ -266,6 +293,7 @@ const getweeklyAttendance =  async (req, res) => {
             });
         }
 
+        console.log("Sending weekly attendance summary response");
         res.json({data : summary});
 
     } catch (error) {

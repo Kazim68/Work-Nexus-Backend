@@ -8,9 +8,11 @@ const { sendLeaveRequestMail, sendLeaveApprovalMail, sendLeaveRejectionMail } = 
 
 exports.applyLeave = async (req, res) => {
     try {
+        console.log("applyLeave function called");
         const { LeaveStartDate, LeaveEndDate, LeaveType, LeaveReason } = req.body;
         const employeeId = req.user.userId;
 
+        console.log("Validating input");
         if (!LeaveStartDate || !LeaveEndDate || !LeaveType || !LeaveReason) {
             return res.status(400).json({ success: false, message: "All fields are required" });
         }
@@ -32,17 +34,21 @@ exports.applyLeave = async (req, res) => {
         }
 
         // validate leave count
+        console.log("Fetching employee");
         const employee = await Employee.findById(employeeId);
         if (!employee) return res.status(404).json({ success: false, message: "Employee not found" });
 
+        console.log("Creating new leave request");
         const newLeave = new LeaveRequest({
             EmployeeID: employeeId, LeaveStartDate, LeaveEndDate,
             LeaveType, LeaveReason, LeaveStatus: LeaveStatus.PENDING
         });
 
         await newLeave.save();
+        console.log("Leave request saved");
 
         // notification to employee
+        console.log("Sending notification to employee");
         const notification = await sendNotification(
             [employeeId],
             "Leave Request Submitted",
@@ -51,6 +57,7 @@ exports.applyLeave = async (req, res) => {
         );
 
         // send mail to self of leave request
+        console.log("Sending email to employee");
         await sendEmail(employee.email, "Leave Request Submitted", sendLeaveRequestMail({
             name: `${employee.firstName} ${employee.lastName}`,
             leaveType: LeaveType,
@@ -69,10 +76,13 @@ exports.applyLeave = async (req, res) => {
 // Get leave requests of this employee
 exports.getMyLeaveRequests = async (req, res) => {
     try {
+        console.log("getMyLeaveRequests function called");
         const employeeId = req.user.userId;
+        console.log("Fetching leave requests for employee:", employeeId);
         const leaves = await LeaveRequest.find({ EmployeeID: employeeId });
         res.status(200).json({ success: true, leaves: leaves });
     } catch (error) {
+        console.log(error);
         res.status(500).json({ success: false, message: "Error fetching your leave requests", error: error.message });
     }
 };
@@ -81,18 +91,22 @@ exports.getMyLeaveRequests = async (req, res) => {
 // Approve Leave (by HR)
 exports.approveLeave = async (req, res) => {
     try {
+        console.log("approveLeave function called");
         const { leaveId } = req.params;
 
+        console.log("Fetching leave request:", leaveId);
         const leave = await LeaveRequest.findById(leaveId);
         if (!leave) return res.status(404).json({ success: false, message: "Leave request not found" });
 
         if (leave.LeaveStatus !== LeaveStatus.PENDING)
             return res.status(200).json({ success: false, message: "This request has already been processed" });
 
+        console.log("Updating leave status to APPROVED");
         leave.LeaveStatus = LeaveStatus.APPROVED;
         await leave.save();
 
         // Update employee's leave info
+        console.log("Fetching employee:", leave.EmployeeID);
         const employee = await Employee.findById(leave.EmployeeID);
         const totalDays = Math.ceil((new Date(leave.LeaveEndDate) - new Date(leave.LeaveStartDate)) / (1000 * 60 * 60 * 24)) + 1;
 
@@ -107,12 +121,14 @@ exports.approveLeave = async (req, res) => {
             unpaidLeaveDays = totalDays - paidLeaveDays;
         }
 
+        console.log("Updating employee's leave info");
         employee.LeaveInfo.UnpaidLeaves += unpaidLeaveDays;
         employee.LeaveInfo.RemainingLeaves -= paidLeaveDays;
 
         await employee.save();
 
         // notification to employee
+        console.log("Sending notification to employee");
         const notification = await sendNotification(
             [leave.EmployeeID],
             "Leave Request Approved",
@@ -121,6 +137,7 @@ exports.approveLeave = async (req, res) => {
         );
 
         // send mail to employee of leave request approved
+        console.log("Sending email to employee");
         await sendEmail(employee.email, "Leave Request Approved", sendLeaveApprovalMail({
             name: `${employee.firstName} ${employee.lastName}`,
             leaveType: leave.LeaveType,
@@ -130,6 +147,7 @@ exports.approveLeave = async (req, res) => {
         
         res.status(200).json({ success: true, message: `Leave request approved`, employee });
     } catch (error) {
+        console.log(error);
         res.status(500).json({ success: false, message: "Error updating leave status", error: error.message });
     }
 };
@@ -137,21 +155,26 @@ exports.approveLeave = async (req, res) => {
 // Reject Leave (by HR)
 exports.rejectLeave = async (req, res) => {
     try {
+        console.log("rejectLeave function called");
         const { leaveId } = req.params;
 
+        console.log("Fetching leave request:", leaveId);
         const leave = await LeaveRequest.findById(leaveId);
         if (!leave) return res.status(404).json({ success: false, message: "Leave request not found" });
 
         if (leave.LeaveStatus !== LeaveStatus.PENDING)
             return res.status(400).json({ success: false, message: "This request has already been processed" });
 
+        console.log("Fetching employee:", leave.EmployeeID);
         const employee = await Employee.findById(leave.EmployeeID);
         if (!employee) return res.status(404).json({ success: false, message: "Employee not found" });
 
+        console.log("Updating leave status to REJECTED");
         leave.LeaveStatus = LeaveStatus.REJECTED;
         await leave.save();
 
         // Notification to employee
+        console.log("Sending notification to employee");
         const notification = await sendNotification(
             [leave.EmployeeID],
             "Leave Request Rejected",
@@ -160,6 +183,7 @@ exports.rejectLeave = async (req, res) => {
         );
 
         // Send mail to employee of leave request rejected
+        console.log("Sending email to employee");
         await sendEmail(employee.email, "Leave Request Rejected", sendLeaveRejectionMail({
             name: `${employee.firstName} ${employee.lastName}`,
             leaveType: leave.LeaveType,
@@ -170,38 +194,47 @@ exports.rejectLeave = async (req, res) => {
 
         res.status(200).json({ success: true, message: `Leave request rejected` });
     } catch (error) {
+        console.log(error);
         res.status(500).json({ success: false, message: "Error updating leave status", error: error.message });
     }
 };
 
 exports.resetLeaveBalanceOfAllEmployees = async (req, res) => { 
     try {
+        console.log("resetLeaveBalanceOfAllEmployees function called");
         const employees = await Employee.find({});
+        console.log(`Found ${employees.length} employees`);
         for (const employee of employees) {
+            console.log(`Resetting leave balance for employee: ${employee._id}`);
             employee.LeaveInfo.RemainingLeaves = 30; // Reset to 30 days
             employee.LeaveInfo.UnpaidLeaves = 0; // Reset unpaid leaves
             await employee.save();
         }
         res.status(200).json({ success: true, message: "Leave balance reset for all employees" });
     } catch (error) {
+        console.log(error);
         res.status(500).json({ success: false, message: "Error resetting leave balance", error: error.message });
     }
 }
 
 exports.cancelLeaveRequest = async (req, res) => { 
     try {
+        console.log("cancelLeaveRequest function called");
         const { leaveId } = req.params;
         const employeeId = req.user.userId;
 
+        console.log("Fetching leave request:", leaveId);
         const leave = await LeaveRequest.findOne({ _id: leaveId, EmployeeID: employeeId });
         if (!leave) return res.status(200).json({ success: false, message: "Leave request not found" });
 
         if (leave.LeaveStatus !== LeaveStatus.PENDING)
             return res.status(400).json({ success: false, message: "This request cannot be cancelled" });
 
+        console.log("Deleting leave request:", leaveId);
         await LeaveRequest.deleteOne({ _id: leaveId });
         
         // notification to employee
+        console.log("Sending notification to employee");
         const notification = await sendNotification(
             [employeeId],
             "Leave Request Cancelled",
@@ -211,16 +244,20 @@ exports.cancelLeaveRequest = async (req, res) => {
 
         res.status(200).json({ success: true, message: "Leave request cancelled successfully" });
     } catch (error) {
+        console.log(error);
         res.status(500).json({ success: false, message: "Error cancelling leave request", error: error.message });
     }
 }
 
 exports.employeeLeaveSummary = async (req, res) => {
     try {
+        console.log("employeeLeaveSummary function called");
         const { employeeId } = req.params;
+        console.log("Fetching employee:", employeeId);
         const employee = await Employee.findById(employeeId);
         if (!employee) return res.status(200).json({ success: false, message: "Employee not found" });
 
+        console.log("Fetching leave requests for employee:", employeeId);
         const leaves = await LeaveRequest.find({ EmployeeID: employeeId });
 
         let sickCount = 0;
@@ -232,6 +269,7 @@ exports.employeeLeaveSummary = async (req, res) => {
         const currentMonth = today.getMonth(); // 0-11
         const currentYear = today.getFullYear();
 
+        console.log("Calculating leave summary");
         leaves.forEach((leave) => {
             const start = new Date(leave.LeaveStartDate);
             const isApproved = leave?.LeaveStatus === LeaveStatus.APPROVED;
@@ -273,6 +311,7 @@ exports.employeeLeaveSummary = async (req, res) => {
 
         res.status(200).json({ success: true, leaveSummary });
     } catch (error) {
+        console.log(error);
         res.status(500).json({ success: false, message: "Error fetching leave summary", error: error.message });
     }
 }
@@ -281,6 +320,7 @@ exports.employeeLeaveSummary = async (req, res) => {
 // Get all pending leave requests (for HR/Admin) with employee details
 exports.allPendingLeaves = async (req, res) => {
     try {
+        console.log("allPendingLeaves function called");
         const pendingLeaves = await LeaveRequest.find({ LeaveStatus: LeaveStatus.PENDING })
         .populate({
           path: "EmployeeID", // assuming the LeaveRequest model has a field EmployeeID
@@ -288,6 +328,7 @@ exports.allPendingLeaves = async (req, res) => {
         })
         .lean(); // make it plain JS object so we can easily add new fields
   
+        console.log(`Found ${pendingLeaves.length} pending leaves`);
         // Add "days" field to each leave request
         const pendingLeavesWithDays = pendingLeaves.map(leave => {
             const start = leave.StartDate ? new Date(leave.StartDate) : null;
@@ -308,6 +349,7 @@ exports.allPendingLeaves = async (req, res) => {
   
       res.status(200).json({ success: true, pendingLeaves: pendingLeavesWithDays });
     } catch (error) {
+        console.log(error);
       res.status(500).json({ success: false, message: "Error fetching pending leaves", error: error.message });
     }
   };
@@ -315,8 +357,10 @@ exports.allPendingLeaves = async (req, res) => {
 
   exports.getLeaveRequestsSummaryForHR = async (req, res) => {
     try {
+        console.log("getLeaveRequestsSummaryForHR function called");
         const employeeId = req.user.userId;
         const leaves = await LeaveRequest.find({  });
+        console.log(`Found ${leaves.length} leaves`);
 
         const today = new Date();
         const currentMonth = today.getMonth();
@@ -326,6 +370,7 @@ exports.allPendingLeaves = async (req, res) => {
         let approvedLeavesThisMonthCount = 0;
         let pendingLeavesCount = 0;
 
+        console.log("Calculating leave summary for HR");
         leaves.forEach(leave => {
             const startDate = new Date(leave.LeaveStartDate);
 
@@ -361,6 +406,7 @@ exports.allPendingLeaves = async (req, res) => {
         });
     }
     catch (error) {
+        console.log(error);
         res.status(500).json({ success: false, message: "Error fetching leave statistics", error: error.message });
     }
 }
@@ -368,12 +414,14 @@ exports.allPendingLeaves = async (req, res) => {
 
 exports.getAllLeavesOfMonth = async (req, res) => { 
     try {
+        console.log("getAllLeavesOfMonth function called");
         const leaveRequests = await LeaveRequest.find({
             LeaveStatus: { $in: [LeaveStatus.APPROVED, LeaveStatus.REJECTED] }
         })
             .populate('EmployeeID', 'firstName employeeCode') // Only populate the Name field from Employee
             .sort({ LeaveApplyDate: -1 });
         
+        console.log(`Found ${leaveRequests.length} leave requests`);
         const formattedLeaves = leaveRequests.map(leave => {
             const startDate = new Date(leave.LeaveStartDate);
             const endDate = new Date(leave.LeaveEndDate);
@@ -399,6 +447,7 @@ exports.getAllLeavesOfMonth = async (req, res) => {
             leaves: formattedLeaves
         });
     } catch (error) {
+        console.log(error);
         res.status(500).json({ success: false, message: "Error fetching leaves", error: error.message });
     }
 }
